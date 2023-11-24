@@ -1,0 +1,27 @@
+(#1) Arduino Sweep Sketch
+
+#include <Servo.h>
+
+Servo myservo; // create a servo object to control a servo
+
+int pos = 0;
+ void setup()
+ {
+	myservo.attach(9); // Attaches the servo to pin 9 to the servo object
+
+ }
+
+void loop() 
+{
+	for(pos = 0; pos<= 180; pos +=1) // 0 deg to 180 deg
+	{
+		myservo.write(pos); // Tells to go to position in variable pos
+		delay(15); // waits 15ms for the servo to reach to that position
+	}
+
+	for(pos = 180; pos>= 0; pos -= 1) // 180 deg to 0 deg
+	{
+		myservo.write(pos);	
+		delay(15);
+	}
+}
