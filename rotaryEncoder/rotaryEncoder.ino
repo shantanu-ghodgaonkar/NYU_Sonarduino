@@ -6,8 +6,13 @@ int counter = 0;
 int aState;
 int btnState;
 unsigned long lastButtonPress = 0;
+unsigned long currentMillis;
+volatile bool buttonPressed = false;
+unsigned long lastDebounceTime = 0;
+unsigned long debounceDelay = 50;
 
 void setup() {
+  pinMode(4, OUTPUT);
   pinMode(btn, INPUT_PULLUP);
   pinMode(outputA, INPUT);
   pinMode(outputB, INPUT);
@@ -18,17 +23,24 @@ void setup() {
 }
 
 void loop() {
+  digitalWrite(4, HIGH);
 }
 
 void checkPosition() {
-  aState = digitalRead(outputA);
-  if (digitalRead(outputB) != aState) {dxt
-    counter++;
-  } else {
-    counter--;
+  currentMillis = millis();
+  if (currentMillis - lastDebounceTime > debounceDelay) {
+    lastDebounceTime = currentMillis;
+    buttonPressed = true;
+    aState = digitalRead(outputA);
+    if (digitalRead(outputB) != aState) {
+      counter++;
+    } else {
+      counter--;
+    }
+    Serial.print("Position: ");
+    Serial.println(counter);
+    delay(100);
   }
-  Serial.print("Position: ");
-  Serial.println(counter);
 }
 
 void buttonClicked() {

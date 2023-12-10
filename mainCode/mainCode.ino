@@ -1,59 +1,56 @@
-// Includes the Servo library
-#include <Servo.h>
-#include <Arduino.h>
+// #include <Arduino.h>
 
-#define outputA 3
-#define outputB 2
-#define PIN_IN3 18
-float counter = 0;
+#define outputA 2
+#define outputB 3
+#define btn 18
+int counter = 0;
 int aState;
-int aLastState;
+int btnState;
+unsigned long lastButtonPress = 0;
+
 // Defines Tirg and Echo pins of the Ultrasonic Sensor
 // const int trigPin = 10;
 // const int echoPin = 11;
-const int pingPin = 7;
-float speedMul = 1;
-
+#define pingPin 7
+#define servo 6
+const int iMax = 40;
 // Variables for the duration and the distance
 long duration;
 int distance;
-
-Servo myServo;  // Creates a servo object for controlling the servo motor
+int i;
 
 void setup() {
-  // pinMode(trigPin, OUTPUT);  // Sets the trigPin as an Output
-  // pinMode(echoPin, INPUT);   // Sets the echoPin as an Input
-  // pinMode(pingPin, OUTPUT);
-  attachInterrupt(digitalPinToInterrupt(outputA), updateSpeedMul, CHANGE);
-  // attachInterrupt(digitalPinToInterrupt(outputB), updateSpeedMul, CHANGE);
+  pinMode(servo, OUTPUT);
+  pinMode(btn, INPUT_PULLUP);
+  pinMode(outputA, INPUT);
+  pinMode(outputB, INPUT);
+  pinMode(13, OUTPUT);
+  pinMode(4, OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(outputA), updateCounter, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(btn), buttonClicked, LOW);
   Serial.begin(9600);
-  myServo.attach(6);  // Defines on which pin is the servo motor attached
-  // use TWO03 mode when PIN_IN1, PIN_IN2 signals are both LOW or HIGH in latch position.
-  // encoderBtn = new EncoderButton(byte PIN_IN3);
-
-  // register interrupt routine
 }
 void loop() {
   // rotates the servo motor from 15 to 165 degrees
-  for (int i = 15; i <= 165; i++) {
-    myServo.write(i);
-    delay(30 * speedMul);
-    distance = calculateDistance();  // Calls a function for calculating the distance measured by the Ultrasonic sensor for each degree
-
-    Serial.print(i);         // Sends the current degree into the Serial Port
-    Serial.print(",");       // Sends addition character right next to the previous value needed later in the Processing IDE for indexing
-    Serial.print(distance);  // Sends the distance value into the Serial Port
-    Serial.print(".");       // Sends addition character right next to the previous value needed later in the Processing IDE for indexing
+  for(int i=15;i<=165;i++){  
+  myServo.write(i);
+  delay(30);
+  distance = calculateDistance();// Calls a function for calculating the distance measured by the Ultrasonic sensor for each degree
+  
+  Serial.print(i); // Sends the current degree into the Serial Port
+  Serial.print(","); // Sends addition character right next to the previous value needed later in the Processing IDE for indexing
+  Serial.print(distance); // Sends the distance value into the Serial Port
+  Serial.print("."); // Sends addition character right next to the previous value needed later in the Processing IDE for indexing
   }
   // Repeats the previous lines from 165 to 15 degrees
-  for (int i = 165; i > 15; i--) {
-    myServo.write(i);
-    delay(30 * speedMul);
-    distance = calculateDistance();
-    Serial.print(i);
-    Serial.print(",");
-    Serial.print(distance);
-    Serial.println(".");
+  for(int i=165;i>15;i--){  
+  myServo.write(i);
+  delay(30);
+  distance = calculateDistance();
+  Serial.print(i);
+  Serial.print(",");
+  Serial.print(distance);
+  Serial.print(".");
   }
 }
 // Function for calculating the distance measured by the Ultrasonic sensor
@@ -77,17 +74,28 @@ int calculateDistance() {
   return distance;
 }
 
-void updateSpeedMul() {
+void updateCounter() {
   aState = digitalRead(outputA);
   if (digitalRead(outputB) != aState) {
-    counter+= 0.05;
-    if(speedMul < 5.0) speedMul += 0.05;
+      if(counter <50 )counter++;
   } else {
-    counter-= 0.05;
-    if(speedMul > 1.0) speedMul -= 0.05;
+    if (counter>-50)counter--;
   }
   Serial.print("Position: ");
   Serial.println(counter);
-  Serial.print("Speed Multiplier: ");
-  Serial.println(speedMul);
+}
+
+void buttonClicked() {  //ADD CODE FOR EMERGENCY STOP
+  btnState = digitalRead(btn);
+  if (btnState == LOW) {
+    if (millis() - lastButtonPress > 50) {
+      Serial.println("Button pressed!");
+    }
+    lastButtonPress = millis();
+  }
+  delay(1);
+  while (1) {
+    Serial.println("EMERGENCY STOP | RESET ARDUINO");
+    delay(1000);
+  }
 }

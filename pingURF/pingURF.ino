@@ -26,10 +26,12 @@ const int pingPin = 7;
 
 void setup() {
   // initialize serial communication:
+  pinMode(13, OUTPUT);
   Serial.begin(9600);
 }
 
 void loop() {
+  digitalWrite(13, HIGH);
   // establish variables for duration of the ping, and the distance result
   // in inches and centimeters:
   long duration, inches, cm;
