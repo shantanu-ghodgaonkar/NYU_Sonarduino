@@ -14,7 +14,7 @@ int i;
 Servo myServo;
 void setup() {
   pinMode(servo, OUTPUT);
-  pinMode(13, OUTPUT);
+  pinMode(13, OUTPUT);  
   pinMode(4, OUTPUT);
   pinMode(inc, INPUT);
   pinMode(dec, INPUT);
